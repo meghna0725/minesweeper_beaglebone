@@ -8,6 +8,21 @@
 #include <QPushButton>
 #include <QGridLayout>
 #include <QMainWindow>
+#include <QMap>
+#include <QSlider>
+
+
+enum Mode {
+    Easy,
+    Medium,
+    Hard
+};
+
+enum MapSize {
+    Small,
+    Medium,
+    Large
+}
 
 class MainWindow : public QMainWindow
 {
@@ -29,8 +44,14 @@ private:
     QPushButton *buttons[12][12];
     QPushButton *flagbutton;
     QGridLayout *gridLayout;
+    QPushButton *startButton;
     int map[12][12];
     int searched_map[12][12];
+
+    QMap<int, Mode> modeMap;
+    QMap<int, MapSize> sizeMap;
+    QSlider *slider;
+    QLabel *optionLabel;
 
     void Init();
     void Search(int row,int col);

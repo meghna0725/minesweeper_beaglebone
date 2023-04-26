@@ -4,6 +4,11 @@
 #include <QString>
 #include <QMessageBox>
 #include <QApplication>
+#include <QMap>
+#include <QSlider>
+#include <QPropertyAnimation>
+#include <QLCDNumber>
+#include <QFont>
 //#include <QtGui>
 #include "mainwindow.h"
 
@@ -16,12 +21,13 @@ MainWindow::MainWindow(QWidget *parent)
     flagbutton->setText("flag: off");
     flagbutton->setGeometry(MARGIN+(COLS+1)*BLOCK_SIZE,MARGIN+1*BLOCK_SIZE,BLOCK_SIZE*5,BLOCK_SIZE*2);
     flagbutton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    //flagbutton->setColor(QPalette::Button, QColor(Qt::blue));
     connect(flagbutton, SIGNAL(clicked()), this, SLOT(Flag_change()));
 
     for (int row = 1; row <= ROWS; row++) {
         for (int col = 1; col <= COLS; col++) {
             QPushButton *button = new QPushButton(centralWidget);
-            button->setGeometry(MARGIN+col*BLOCK_SIZE,MARGIN+row*BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE);
+            button->setGeometry(MARGIN*10+col*BLOCK_SIZE,MARGIN+row*BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE);
             button->setFixedSize(BLOCK_SIZE, BLOCK_SIZE);
             button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
             button->setProperty("row", row);
@@ -41,6 +47,66 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
 
+}
+
+void MainWindow::updateOptionLabel(int value) {
+    Mode option = modeMap.lowerBound(value).value();
+    MapSize size_option = sizeMap.lowerBound(value).value();
+    QString optionText;
+    switch (option) {
+        case Easy:
+            switch(size_option) {
+                case Easy:
+                    break;
+                case Medium:
+                    break;
+                case Large:
+                    break;
+            }
+            break;
+        case Medium:
+            switch(size_option) {
+                case Easy:
+                    break;
+                case Medium:
+                    break;
+                case Large:
+                    break;
+            }
+            break;
+        case Hard:
+            switch(size_option) {
+                case Easy:
+                    break;
+                case Medium:
+                    break;
+                case Large:
+                    break;
+            }
+            break;
+        default:
+            break;
+    }
+    ui->optionLabel->setText(optionText);
+}
+
+
+void MainWindow::ChooseOptions()
+{
+    QMap<int, Mode> modeMap;
+    QMap<int, MapSize> sizeMap;
+    modeMap.insert(0, Easy);
+    modeMap.insert(25, Medium);
+    modeMap.insert(50, Hard);
+
+    sizeMap.insert(0, Small);
+    sizeMap.insert(25, Medium);
+    sizeMap.insert(50, Large);
+
+    slider->setMinimum(0);
+    slider->setMaximum(50);
+    connect(slider, &QSlider::valueChanged, this, &MainWindow::updateOptionLabel());
+    //Init();
 }
 
 void MainWindow::Init()
@@ -97,76 +163,30 @@ void MainWindow::Init()
         }
     }
 }
-/*
-void Widget::FoodGenerate()
+
+void MainWindow::GameTimer(QWidget *parent = nullptr)
 {
-    //Generate Food ramdomly
-    foodPoint.setX(rand()%NUM_COL);
-    foodPoint.setY(rand()%NUM_ROW);
-    //In case the food generated inside snake
-    if(snake.contains(foodPoint))
-        FoodGenerate();
+    QLCDNumber *lcdNumber = new QLCDNumber();
+    lcdNumber->setDigitCount(5);
+
+    QTimer *timer = new QTimer(parent);
+    int elapsedTime = 0;
+
+    startButton = new QPushButton("Start");
+    connect(startButton, &QPushButton::clicked, [timer, &elapsedTime, lcdNumber, startButton]() {
+        startButton->setEnabled(false);
+        timer->start(1000);
+        connect(timer, &QTimer::timeout, [lcdNumber, &elapsedTime]() {
+            elapsedTime++;
+            lcdNumber->display(elapsedTime);
+        });
+    });
+
+    QVBoxLayout *layout = new QVBoxLayout(parent);
+    layout->addWidget(lcdNumber);
+    layout->addWidget(startButton);
 }
 
-void Widget::PoisonGenerate()
-{
-    if(isPoison)
-    {
-      poisonPoint.setX(rand()%NUM_COL);
-      poisonPoint.setY(rand()%NUM_ROW);
-      if(snake.contains(poisonPoint)|| (poisonPoint.x()==foodPoint.x() && poisonPoint.y() == foodPoint.y()))
-          PoisonGenerate();
-    }
-}
-
-void Widget::paintEvent(QPaintEvent *event)
-{
-    QPainter painter(this);
-    
-    //background picture
-    painter.drawPixmap(MARGIN,MARGIN,NUM_COL*BLOCK_SIZE,NUM_ROW*BLOCK_SIZE,QPixmap("back.png"));
-    //background with red border
-    painter.setBrush(QColor(0,1,0,100));
-    painter.setPen(Qt::red);
-    painter.drawRect(MARGIN,MARGIN,NUM_COL*BLOCK_SIZE,NUM_ROW*BLOCK_SIZE);
-    
-    //blue snake with red border
-    painter.setBrush(Qt::blue);
-    painter.setPen(Qt::red);
-    
-    for(int i=1;i<snake.size();i++)
-        painter.drawRect(MARGIN+snake[i].x()*BLOCK_SIZE,MARGIN+snake[i].y()*BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE);
-    
-    //set the snake head as circle
-    painter.drawEllipse(MARGIN+snake[0].x()*BLOCK_SIZE,MARGIN+snake[0].y()*BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE); //snake head
-    //painter.drawPixmap(MARGIN+snake[0].x()*BLOCK_SIZE,MARGIN+snake[0].y()*BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE,QPixmap("head.png")); //snake head as picture but very slow not recommended
-    for(int i=1;i<snake.size();i++)
-        painter.drawRect(MARGIN+snake[i].x()*BLOCK_SIZE,MARGIN+snake[i].y()*BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE);
-        
-    //red food
-    //painter.setBrush(Qt::red);
-    //painter.drawEllipse(MARGIN+foodPoint.x()*BLOCK_SIZE,MARGIN+foodPoint.y()*BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE);
-    painter.drawPixmap(MARGIN+foodPoint.x()*BLOCK_SIZE,MARGIN+foodPoint.y()*BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE,QPixmap("food.png"));
-    
-    //yellow poison
-    //painter.setBrush(Qt::yellow);
-    //painter.drawEllipse(MARGIN+foodPoint.x()*BLOCK_SIZE,MARGIN+foodPoint.y()*BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE);
-    if(isPoison){
-      painter.drawPixmap(MARGIN+poisonPoint.x()*BLOCK_SIZE,MARGIN+poisonPoint.y()*BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE,QPixmap("poison.png"));
-    }
-    
-    //black Arial 14 score information with grass background 
-    painter.drawPixmap(0,NUM_ROW*BLOCK_SIZE,MARGIN*4+(NUM_COL+3)*BLOCK_SIZE,MARGIN*6+3*BLOCK_SIZE,QPixmap("grass.png"));
-    painter.setPen(Qt::black);
-    painter.setFont(QFont("Arial",14));
-    painter.drawText(MARGIN*3+NUM_COL*BLOCK_SIZE,MARGIN+16*BLOCK_SIZE,"score: "+QString::number(score));
-    painter.drawText(MARGIN*3+NUM_COL*BLOCK_SIZE,MARGIN+18*BLOCK_SIZE,"Best: "+QString::number(bestscore));
-    //painter.drawText(MARGIN+2*BLOCK_SIZE,MARGIN*3+(NUM_ROW+1)*BLOCK_SIZE,"Press up,down,left,right to control the snake");
-    painter.drawText(MARGIN+1*BLOCK_SIZE,MARGIN*3+(NUM_ROW+1)*BLOCK_SIZE,"Press w,s,a,d as up,down,left,right to control the snake");
-    painter.drawText(MARGIN+1*BLOCK_SIZE,MARGIN*5+(NUM_ROW+2)*BLOCK_SIZE,"Press space or p to start or pause/continue the game; Press j to restart");     
-
-}
-*/
 void MainWindow::Mine()
 {
     QPushButton *button = qobject_cast<QPushButton *>(sender());
@@ -235,6 +255,11 @@ void MainWindow::Flag_change()
         flagbutton->setText("flag: off");
 }
 
+void MainWindow::Time_Tracker()
+{
+    
+}
+
 void MainWindow::Win()
 {
     QMessageBox messageBox;
@@ -260,5 +285,13 @@ void MainWindow::Lose()
         Init();
     }
     if (messageBox.exec() == QMessageBox::No)
+        QuitMessage();
         qApp->quit();  
 }
+
+void MainWindow::QuitMessage()
+{
+    QMessageBox messageBox;
+    messageBox.setText(tr("Thank you for playing!"));
+}
+
