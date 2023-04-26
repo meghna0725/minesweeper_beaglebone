@@ -21,7 +21,7 @@ private:
     const int ROWS = 10;
     const int COLS = 10;
     const int NUM_MINES = 10;
-    const int BLOCK_SIZE=30;
+    const int BLOCK_SIZE= 30;
     const int MARGIN=5; 
 
     bool flag_state = 0;
