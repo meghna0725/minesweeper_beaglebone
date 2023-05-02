@@ -1,59 +1,70 @@
 #include <QPainter>
 #include <time.h>
+#include <QLabel>
 #include <QTimer>
+#include <QTime>
+#include <QColor>
 #include <QString>
 #include <QMessageBox>
+#include <QDateTime>
 #include <QApplication>
+#include <QElapsedTimer>
+#include <QFont>
 #include "mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-{
+    
+    {
+    
+    QFont font("Arial", 11);
+    QFont timeFont("Courier", 18);
+
+    timeLabel = new QLabel(this);
+    timeLabel->setText("Elapsed Time: 0");
+    timeLabel->setGeometry(300, 20, 50, 70);
+
+     // Set the background color to blue
+    QColor blueColor(230, 242, 255);
     QWidget *centralWidget = new QWidget(this);
     QGridLayout *gridLayout = new QGridLayout(this);
     flagbutton = new QPushButton(this);
     flagbutton->setText("flag: off");
-    flagbutton->setGeometry(300,30,120,60);
+    flagbutton->setFont(font);
+    flagbutton->setGeometry(300,90,100,60);
     flagbutton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     connect(flagbutton, SIGNAL(clicked()), this, SLOT(Flag_change()));
 
     ss = new QPushButton(this);
     ss->setText("Small");
-    ss->setGeometry(300,100,70,50);
+    ss->setFont(font);
+    ss->setGeometry(300,160,60,30);
     connect(ss, SIGNAL(clicked()), this, SLOT(ssc()));
     ms = new QPushButton(this);
     ms->setText("Medium");
-    ms->setGeometry(300,150,70,50);
+    ms->setFont(font);
+    ms->setGeometry(300,190,60,30);
     connect(ms, SIGNAL(clicked()), this, SLOT(msc()));
     ls = new QPushButton(this);
     ls->setText("Large");
-    ls->setGeometry(300,200,70,50);
+    ls->setFont(font);
+    ls->setGeometry(300,220,60,30);
     connect(ls, SIGNAL(clicked()), this, SLOT(lsc()));
     em = new QPushButton(this);
     em->setText("Easy");
-    em->setGeometry(380,100,70,50);
+    em->setFont(font);
+    em->setGeometry(380,160,60,30);
     connect(em, SIGNAL(clicked()), this, SLOT(emc()));
     mm = new QPushButton(this);
     mm->setText("Medium");
-    mm->setGeometry(380,150,70,50);
+    mm->setFont(font);
+    mm->setGeometry(380,190,60,30);
     connect(mm, SIGNAL(clicked()), this, SLOT(mmc()));
     hm = new QPushButton(this);
     hm->setText("Hard");
-    hm->setGeometry(380,200,70,50);
+    hm->setFont(font);
+    hm->setGeometry(380,220,60,30);
     connect(hm, SIGNAL(clicked()), this, SLOT(hmc()));
-    /*
-    QMap<int ,Mode> modeMap;
-    QMap<int, MapSize> sizeMap;
-    modeMap.insert(0,Easy);
-    modeMap.insert(25,Medium);
-    modeMap.insert(50,Hard);
-    sizeMap.insert(0,Small);
-    sizeMap.insert(0,Medium);
-    sizeMap.insert(0,Large);
-    slider->setMinimum(0);
-    slider->setMaximum(50);
-    connect(slider,&QSlider::valueChanged, this , &MainWindow::updateOptionalLabel());
-    */
 
     for (int row = 1; row <= ROWS; row++) {
         for (int col = 1; col <= COLS; col++) {
@@ -64,14 +75,8 @@ MainWindow::MainWindow(QWidget *parent)
             button->setProperty("row", row);
             button->setProperty("col", col);
             button->setText(" ");
-            buttons[row][col] = button;/*
-            buttons[row][col]->setGeometry(10*MARGIN+(col-1)*BLOCK_SIZE,MARGIN+(row-1)*BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE);
-            //buttons[row][col]->setGeometry(10*MARGIN+col*BLOCK_SIZE,MARGIN+row*BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE);
-            buttons[row][col]->setFixedSize(BLOCK_SIZE, BLOCK_SIZE);
-            buttons[row][col]->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-            buttons[row][col]->setProperty("row", row);
-            buttons[row][col]->setProperty("col", col);
-            buttons[row][col]->setText(" ");*/
+            button->setStyleSheet("background-color: green;");
+            buttons[row][col] = button;
             buttons[row][col]->setGeometry(MARGIN+(col-1)*BLOCK_SIZE,MARGIN+(row-1)*BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE);
             gridLayout->addWidget(button, row, col);
             connect(buttons[row][col], SIGNAL(clicked()), this, SLOT(Mine()));
@@ -79,6 +84,7 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     setCentralWidget(centralWidget);
+    centralWidget->setStyleSheet(QString("background-color: %1;").arg(blueColor.name()));
     setWindowTitle(tr("Minesweeper"));
     Init();
 }
@@ -90,6 +96,8 @@ MainWindow::~MainWindow()
 
 void MainWindow::Init()
 {
+
+    timeLabel->show();
 
     for (int row = 1; row <= ROWS; row++) {
         for (int col = 1; col <= COLS; col++) {

@@ -12,4 +12,3 @@ HEADERS += mainwindow.h
 SOURCES += main.cpp mainwindow.cpp
 
 QMAKE_CXXFLAGS += -static -static-libgcc -static-libstdc++
-

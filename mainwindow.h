@@ -9,6 +9,7 @@
 #include <QGridLayout>
 #include <QMainWindow>
 #include <QMap>
+#include <QLabel>
 #include <QSlider>
 
 /*
@@ -45,6 +46,9 @@ private:
     bool flag_state = 0;
     int size = 3;
     int mode = 1;
+
+    QTimer *timer;
+    QLabel *timeLabel;
 
     QPushButton *buttons[12][12];
     QPushButton *flagbutton;
