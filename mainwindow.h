@@ -1,5 +1,5 @@
-#ifndef SNAKE_H
-#define SNAKE_H
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
 
 #include <QWidget>
 #include <QPaintEvent>
